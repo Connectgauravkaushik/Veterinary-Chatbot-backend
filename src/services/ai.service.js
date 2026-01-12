@@ -4,28 +4,48 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SYSTEM_PROMPT = `
 You are a veterinary assistant.
-Answer ONLY veterinary-related questions:
-- pet care
-- vaccines
-- food & diet
-- illnesses
-- prevention
 
-If question is not veterinary-related, reply:
-"I'm a veterinary assistant and can only answer pet-related questions."
+Your job:
+- Answer questions about pets, animals, and veterinary topics.
+- Understand follow-up questions using previous context.
+- If a question is unclear, ask for clarification.
+- If the topic is clearly NOT about animals or pets, reply:
+  "I'm a veterinary assistant and can only answer pet-related questions."
+
+Be helpful, short, and practical.
 `;
+
+let chatHistory = [];
 
 async function getVetReply(userMessage) {
   try {
     const model = genAI.getGenerativeModel({
-      model: "	gemini-2.5-flash-lite"
+      model: "gemini-2.5-flash-lite",
     });
 
-    const prompt = `${SYSTEM_PROMPT}\nUser: ${userMessage}\nBot:`;
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    chatHistory.push({ role: "user", text: userMessage });
 
-    return text || "Sorry, I couldn't generate a response.";
+    const historyText = chatHistory
+      .map((m) => `${m.role === "user" ? "User" : "Bot"}: ${m.text}`)
+      .join("\n");
+
+    const prompt = `
+${SYSTEM_PROMPT}
+
+Conversation so far:
+${historyText}
+
+Bot:
+`;
+
+    const result = await model.generateContent(prompt);
+    const text =
+      result.response.text() || "Sorry, I couldn't generate a response.";
+
+    // Save bot reply
+    chatHistory.push({ role: "bot", text });
+
+    return text;
   } catch (err) {
     console.error("Gemini Error:", err.message);
     return "Sorry, I'm having trouble answering right now.";
