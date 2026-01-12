@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 5000;
 
 const chatRoutes = require("./routes/chat.routes");
 const conversationRoutes = require("./routes/conversation.routes");
+const adminRoutes = require("./routes/admin.routes");
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
@@ -36,6 +37,7 @@ app.use(express.json());
 
 app.use("/api/chat", chatRoutes);
 app.use("/api/conversations", conversationRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 app.listen(PORT, "0.0.0.0", () => {
