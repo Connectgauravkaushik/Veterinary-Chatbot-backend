@@ -16,7 +16,7 @@ app.use(express.json());
 app.use("/api/chat", chatRoutes);
 app.use("/api/conversations", conversationRoutes);
 
-/* Start server first (Render wants open port fast) */
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`API running on port ${PORT}`);
 });
